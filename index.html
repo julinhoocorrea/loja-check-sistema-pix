@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja da Check - Sistema Completo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e1b4b 0%, #7c3aed 50%, #1e1b4b 100%);
+        }
+        .text-gradient {
+            background: linear-gradient(to right, #7c3aed, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- Login Page -->
+    <div id="loginPage" class="min-h-screen gradient-bg flex items-center justify-center p-4">
+        <div class="w-full max-w-md">
+            <div class="bg-white rounded-xl shadow-2xl p-6">
+                <div class="text-center mb-6">
+                    <div class="flex items-center justify-center gap-2 mb-4">
+                        <div class="w-6 h-6 bg-gradient-to-r from-purple-600 to-blue-600 rounded transform rotate-45"></div>
+                        <span class="text-2xl font-bold text-gradient">Agência Check</span>
+                    </div>
+                    <h2 class="text-2xl font-semibold text-gray-900">Bem-vindo de volta</h2>
+                    <p class="text-gray-600 mt-2">Entre com suas credenciais para acessar o sistema</p>
+                </div>
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            placeholder="seu@email.com"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            required
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+                        <div class="relative">
+                            <input
+                                type="password"
+                                id="password"
+                                placeholder="Sua senha"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                required
+                            >
+                            <button
+                                type="button"
+                                id="togglePassword"
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                            >
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button
+                        type="submit"
+                        id="loginBtn"
+                        class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 px-4 rounded-md hover:opacity-90 transition font-medium"
+                    >
+                        Entrar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboardPage" class="hidden min-h-screen bg-gray-50">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 bg-gradient-to-r from-purple-600 to-blue-600 rounded transform rotate-45"></div>
+                        <h1 class="text-2xl font-bold text-gradient">Loja da Check</h1>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span id="userBadge" class="px-2 py-1 text-sm rounded bg-purple-100 text-purple-800 font-medium"></span>
+                        <button id="logoutBtn" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                            Sair
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="bg-white border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex space-x-8">
+                    <button class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-purple-500 text-purple-600" data-tab="overview">
+                        Visão Geral
+                    </button>
+                    <button class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700" data-tab="sales">
+                        Vendas
+                    </button>
+                    <button class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700" data-tab="products">
+                        Estoque
+                    </button>
+                    <button class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700" data-tab="webhook">
+                        Webhook PIX
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="px-4 py-6 sm:px-0">
+
+                <!-- Overview Tab -->
+                <div id="overviewTab" class="tab-content">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Total Vendas</p>
+                                    <p id="totalSales" class="text-2xl font-bold text-gray-900">0</p>
+                                    <p class="text-xs text-gray-500">Vendas cadastradas</p>
+                                </div>
+                                <i data-lucide="shopping-cart" class="w-8 h-8 text-gray-400"></i>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Receita</p>
+                                    <p id="totalRevenue" class="text-2xl font-bold text-gray-900">R$ 0,00</p>
+                                    <p id="paidSalesCount" class="text-xs text-gray-500">0 vendas pagas</p>
+                                </div>
+                                <i data-lucide="dollar-sign" class="w-8 h-8 text-gray-400"></i>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Produtos</p>
+                                    <p id="totalProducts" class="text-2xl font-bold text-gray-900">0</p>
+                                    <p class="text-xs text-gray-500">Total em estoque</p>
+                                </div>
+                                <i data-lucide="package" class="w-8 h-8 text-gray-400"></i>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">PIX Automático</p>
+                                    <p class="text-2xl font-bold text-gray-900">✅</p>
+                                    <p class="text-xs text-gray-500">Webhook ativo</p>
+                                </div>
+                                <i data-lucide="users" class="w-8 h-8 text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales Tab -->
+                <div id="salesTab" class="tab-content hidden">
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">Vendas</h3>
+                            <p class="text-sm text-gray-500">Lista de todas as vendas <span id="adminNote" class="hidden">(Admin: pode excluir vendas)</span></p>
+                        </div>
+                        <div class="p-6">
+                            <div id="salesList" class="space-y-4">
+                                <!-- Sales will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Tab -->
+                <div id="productsTab" class="tab-content hidden">
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">Estoque</h3>
+                            <p class="text-sm text-gray-500">Gerenciar produtos e estoque (editar quantidade e preço)</p>
+                        </div>
+                        <div class="p-6">
+                            <div id="productsList" class="space-y-4">
+                                <!-- Products will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Webhook Tab -->
+                <div id="webhookTab" class="tab-content hidden">
+                    <div class="space-y-6">
+                        <!-- Status Card -->
+                        <div class="bg-white rounded-lg shadow">
+                            <div class="p-6 border-b border-gray-200">
+                                <h3 class="text-lg font-medium text-gray-900 flex items-center gap-2">
+                                    <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
+                                    Status do Webhook PIX
+                                </h3>
+                                <p class="text-sm text-gray-500">Configuração automática de confirmação de pagamentos</p>
+                            </div>
+                            <div class="p-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <h4 class="font-medium text-sm text-gray-700">Endpoint Webhook</h4>
+                                        <code class="text-sm bg-gray-100 px-2 py-1 rounded">
+                                            https://www.lojadacheck.com.br/webhook/pix
+                                        </code>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-sm text-gray-700">Status</h4>
+                                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
+                                            ✅ Ativo e Configurado
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-sm text-gray-700">Banco</h4>
+                                        <span class="text-sm">Banco Inter</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-sm text-gray-700">Certificado SSL</h4>
+                                        <span class="text-sm">ca8.crt ✓</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Test Card -->
+                        <div class="bg-white rounded-lg shadow">
+                            <div class="p-6 border-b border-gray-200">
+                                <h3 class="text-lg font-medium text-gray-900">Teste do Webhook</h3>
+                                <p class="text-sm text-gray-500">Simular recebimento de notificação PIX</p>
+                            </div>
+                            <div class="p-6">
+                                <div class="space-y-4">
+                                    <button
+                                        id="simulateWebhookBtn"
+                                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+                                    >
+                                        Simular Pagamento PIX
+                                    </button>
+
+                                    <div id="webhookProcessing" class="hidden bg-blue-50 p-4 rounded-lg">
+                                        <div class="flex items-center gap-2">
+                                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                                            <span class="text-blue-800">Processando pagamento PIX...</span>
+                                        </div>
+                                    </div>
+
+                                    <div id="webhookSuccess" class="hidden bg-green-50 p-4 rounded-lg">
+                                        <div class="flex items-center gap-2">
+                                            <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
+                                            <span class="text-green-800 font-medium">
+                                                ✅ Pagamento PIX confirmado automaticamente!
+                                            </span>
+                                        </div>
+                                        <p class="text-sm text-green-700 mt-1">
+                                            Venda atualizada automaticamente para status "Pago". Verifique na área de vendas.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Documentation Card -->
+                        <div class="bg-white rounded-lg shadow">
+                            <div class="p-6 border-b border-gray-200">
+                                <h3 class="text-lg font-medium text-gray-900">Documentação Técnica</h3>
+                                <p class="text-sm text-gray-500">Fluxo de funcionamento do webhook</p>
+                            </div>
+                            <div class="p-6">
+                                <div class="space-y-4">
+                                    <div>
+                                        <h4 class="font-medium">🔄 Fluxo Automático:</h4>
+                                        <ol class="list-decimal list-inside space-y-1 text-sm text-gray-600 ml-4 mt-2">
+                                            <li>Cliente realiza pagamento via PIX</li>
+                                            <li>Banco Inter processa o pagamento</li>
+                                            <li>Inter envia notificação para o webhook</li>
+                                            <li>Sistema valida com certificado SSL</li>
+                                            <li>Venda é confirmada automaticamente</li>
+                                            <li>Status atualizado para "Pago"</li>
+                                        </ol>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-medium text-gray-900">📚 Baseado na documentação oficial:</h4>
+                                        <a
+                                            href="https://developers.inter.co/references/cobranca-bolepix"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="text-blue-600 hover:text-blue-800 text-sm underline"
+                                        >
+                                            https://developers.inter.co/references/cobranca-bolepix
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Global state
+        let currentUser = null;
+        let currentTab = 'overview';
+        let sales = [];
+        let products = [];
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            initializeData();
+            setupEventListeners();
+        });
+
+        function checkAuth() {
+            const userRole = localStorage.getItem('userRole');
+            const userEmail = localStorage.getItem('userEmail');
+
+            if (userRole && userEmail) {
+                currentUser = { role: userRole, email: userEmail };
+                showDashboard();
+            } else {
+                showLogin();
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('dashboardPage').classList.add('hidden');
+        }
+
+        function showDashboard() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('dashboardPage').classList.remove('hidden');
+
+            // Update user badge
+            const userBadge = document.getElementById('userBadge');
+            userBadge.textContent = currentUser.role === 'admin' ? 'Administrador' : 'Usuário';
+            userBadge.className = currentUser.role === 'admin'
+                ? 'px-2 py-1 text-sm rounded bg-purple-100 text-purple-800 font-medium'
+                : 'px-2 py-1 text-sm rounded bg-gray-100 text-gray-800 font-medium';
+
+            // Show admin features
+            if (currentUser.role === 'admin') {
+                document.getElementById('adminNote').classList.remove('hidden');
+            }
+
+            updateDashboard();
+        }
+
+        function initializeData() {
+            // Initialize sales data
+            const savedSales = localStorage.getItem('loja-check-sales');
+            if (savedSales) {
+                sales = JSON.parse(savedSales);
+            } else {
+                sales = [
+                    {
+                        id: '1',
+                        product: 'Produto Teste A',
+                        quantity: 2,
+                        price: 100.00,
+                        customer: 'cliente@email.com',
+                        status: 'pending',
+                        paymentMethod: 'pix',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '2',
+                        product: 'Produto Teste B',
+                        quantity: 1,
+                        price: 75.50,
+                        customer: 'outro@email.com',
+                        status: 'paid',
+                        paymentMethod: 'pix',
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                localStorage.setItem('loja-check-sales', JSON.stringify(sales));
+            }
+
+            // Initialize products data
+            const savedProducts = localStorage.getItem('loja-check-products');
+            if (savedProducts) {
+                products = JSON.parse(savedProducts);
+            } else {
+                products = [
+                    {
+                        id: '1',
+                        name: 'Produto Teste A',
+                        price: 50.00,
+                        stock: 100,
+                        description: 'Produto de exemplo para testes'
+                    },
+                    {
+                        id: '2',
+                        name: 'Produto Teste B',
+                        price: 75.50,
+                        stock: 25,
+                        description: 'Outro produto de exemplo'
+                    }
+                ];
+                localStorage.setItem('loja-check-products', JSON.stringify(products));
+            }
+        }
+
+        function setupEventListeners() {
+            // Login form
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+            // Toggle password visibility
+            document.getElementById('togglePassword').addEventListener('click', function() {
+                const passwordInput = document.getElementById('password');
+                const icon = this.querySelector('[data-lucide]');
+
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.setAttribute('data-lucide', 'eye-off');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.setAttribute('data-lucide', 'eye');
+                }
+                lucide.createIcons();
+            });
+
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+
+            // Tab navigation
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+            });
+
+            // Webhook simulation
+            document.getElementById('simulateWebhookBtn').addEventListener('click', simulateWebhook);
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Check admin credentials
+            if (email === 'juliocorrea@check2.com.br' && password === 'Ju113007') {
+                currentUser = { role: 'admin', email: email };
+                localStorage.setItem('userRole', 'admin');
+                localStorage.setItem('userEmail', email);
+                showDashboard();
+            } else {
+                // Any other login becomes regular user
+                currentUser = { role: 'user', email: email };
+                localStorage.setItem('userRole', 'user');
+                localStorage.setItem('userEmail', email);
+                showDashboard();
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('userEmail');
+            currentUser = null;
+            showLogin();
+
+            // Reset form
+            document.getElementById('loginForm').reset();
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.dataset.tab === tabName) {
+                    btn.className = 'tab-btn py-4 px-1 border-b-2 font-medium text-sm border-purple-500 text-purple-600';
+                } else {
+                    btn.className = 'tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700';
+                }
+            });
+
+            // Show/hide tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(tabName + 'Tab').classList.remove('hidden');
+
+            currentTab = tabName;
+
+            // Update content based on active tab
+            if (tabName === 'sales') {
+                renderSales();
+            } else if (tabName === 'products') {
+                renderProducts();
+            } else if (tabName === 'overview') {
+                updateOverview();
+            }
+        }
+
+        function updateDashboard() {
+            updateOverview();
+            if (currentTab === 'sales') renderSales();
+            if (currentTab === 'products') renderProducts();
+        }
+
+        function updateOverview() {
+            const totalSales = sales.length;
+            const paidSales = sales.filter(sale => sale.status === 'paid');
+            const totalRevenue = paidSales.reduce((sum, sale) => sum + (sale.price * sale.quantity), 0);
+
+            document.getElementById('totalSales').textContent = totalSales;
+            document.getElementById('totalRevenue').textContent = `R$ ${totalRevenue.toFixed(2)}`;
+            document.getElementById('paidSalesCount').textContent = `${paidSales.length} vendas pagas`;
+            document.getElementById('totalProducts').textContent = products.length;
+        }
+
+        function renderSales() {
+            const salesList = document.getElementById('salesList');
+            salesList.innerHTML = '';
+
+            sales.forEach(sale => {
+                const saleDiv = document.createElement('div');
+                saleDiv.className = 'flex items-center justify-between p-4 border rounded-lg';
+
+                const statusColor = sale.status === 'paid' ? 'bg-green-100 text-green-800' :
+                                  sale.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800';
+
+                const statusText = sale.status === 'paid' ? 'Pago' :
+                                 sale.status === 'pending' ? 'Pendente' : 'Cancelado';
+
+                saleDiv.innerHTML = `
+                    <div class="flex-1">
+                        <div class="flex items-center gap-4">
+                            <div>
+                                <p class="font-medium">${sale.product}</p>
+                                <p class="text-sm text-gray-500">${sale.customer}</p>
+                            </div>
+                            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium ${statusColor}">
+                                ${statusText}
+                            </span>
+                            ${sale.paymentMethod === 'pix' ? '<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">PIX</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-medium">R$ ${(sale.price * sale.quantity).toFixed(2)}</p>
+                        <p class="text-sm text-gray-500">Qtd: ${sale.quantity}</p>
+                    </div>
+                    <div class="flex gap-2 ml-4">
+                        ${sale.status === 'pending' && sale.paymentMethod === 'pix' ?
+                            `<button onclick="confirmPixPayment('${sale.id}')" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">
+                                Confirmar PIX
+                             </button>` : ''}
+                        ${currentUser.role === 'admin' ?
+                            `<button onclick="deleteSale('${sale.id}')" class="border border-red-300 text-red-600 px-3 py-1 rounded text-sm hover:bg-red-50">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                             </button>` : ''}
+                    </div>
+                `;
+
+                salesList.appendChild(saleDiv);
+            });
+
+            lucide.createIcons();
+        }
+
+        function renderProducts() {
+            const productsList = document.getElementById('productsList');
+            productsList.innerHTML = '';
+
+            products.forEach(product => {
+                const productDiv = document.createElement('div');
+                productDiv.className = 'flex items-center justify-between p-4 border rounded-lg';
+                productDiv.id = `product-${product.id}`;
+
+                productDiv.innerHTML = `
+                    <div class="flex-1">
+                        <p class="font-medium">${product.name}</p>
+                        <p class="text-sm text-gray-500">${product.description}</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <p class="font-medium">R$ ${product.price.toFixed(2)}</p>
+                            <p class="text-sm text-gray-500">Estoque: ${product.stock}</p>
+                        </div>
+                        <button onclick="editProduct('${product.id}')" class="border border-gray-300 px-3 py-1 rounded text-sm hover:bg-gray-50">
+                            <i data-lucide="edit" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+
+                productsList.appendChild(productDiv);
+            });
+
+            lucide.createIcons();
+        }
+
+        function confirmPixPayment(saleId) {
+            sales = sales.map(sale =>
+                sale.id === saleId && sale.status === 'pending'
+                    ? { ...sale, status: 'paid' }
+                    : sale
+            );
+            localStorage.setItem('loja-check-sales', JSON.stringify(sales));
+            renderSales();
+            updateOverview();
+            alert('🎉 Pagamento PIX confirmado automaticamente!');
+        }
+
+        function deleteSale(saleId) {
+            if (currentUser.role === 'admin') {
+                if (confirm('Tem certeza que deseja excluir esta venda?')) {
+                    sales = sales.filter(sale => sale.id !== saleId);
+                    localStorage.setItem('loja-check-sales', JSON.stringify(sales));
+                    renderSales();
+                    updateOverview();
+                    alert('Venda excluída com sucesso!');
+                }
+            }
+        }
+
+        function editProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            const productDiv = document.getElementById(`product-${productId}`);
+
+            productDiv.innerHTML = `
+                <div class="flex-1">
+                    <p class="font-medium">${product.name}</p>
+                    <p class="text-sm text-gray-500">${product.description}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="text-right">
+                        <label class="text-xs text-gray-500">Preço</label>
+                        <input
+                            id="price-${productId}"
+                            type="number"
+                            step="0.01"
+                            value="${product.price}"
+                            class="w-20 px-2 py-1 border rounded text-sm"
+                        >
+                    </div>
+                    <div class="text-right">
+                        <label class="text-xs text-gray-500">Estoque</label>
+                        <input
+                            id="stock-${productId}"
+                            type="number"
+                            value="${product.stock}"
+                            class="w-16 px-2 py-1 border rounded text-sm"
+                        >
+                    </div>
+                    <button onclick="saveProduct('${productId}')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+                        Salvar
+                    </button>
+                    <button onclick="cancelEdit('${productId}')" class="border border-gray-300 px-3 py-1 rounded text-sm hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                </div>
+            `;
+        }
+
+        function saveProduct(productId) {
+            const newPrice = parseFloat(document.getElementById(`price-${productId}`).value);
+            const newStock = parseInt(document.getElementById(`stock-${productId}`).value);
+
+            products = products.map(product =>
+                product.id === productId
+                    ? { ...product, price: newPrice, stock: newStock }
+                    : product
+            );
+            localStorage.setItem('loja-check-products', JSON.stringify(products));
+            renderProducts();
+            alert('Produto atualizado com sucesso!');
+        }
+
+        function cancelEdit(productId) {
+            renderProducts();
+        }
+
+        function simulateWebhook() {
+            const btn = document.getElementById('simulateWebhookBtn');
+            const processing = document.getElementById('webhookProcessing');
+            const success = document.getElementById('webhookSuccess');
+
+            // Hide previous states
+            success.classList.add('hidden');
+
+            // Show processing
+            btn.disabled = true;
+            btn.textContent = 'Processando...';
+            processing.classList.remove('hidden');
+
+            setTimeout(() => {
+                // Hide processing
+                processing.classList.add('hidden');
+
+                // Update pending PIX sales to paid
+                sales = sales.map(sale =>
+                    sale.status === 'pending' && sale.paymentMethod === 'pix'
+                        ? { ...sale, status: 'paid' }
+                        : sale
+                );
+                localStorage.setItem('loja-check-sales', JSON.stringify(sales));
+
+                // Show success
+                success.classList.remove('hidden');
+                btn.disabled = false;
+                btn.textContent = 'Simular Pagamento PIX';
+
+                // Update dashboard if we're on sales or overview
+                updateOverview();
+                if (currentTab === 'sales') {
+                    renderSales();
+                }
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

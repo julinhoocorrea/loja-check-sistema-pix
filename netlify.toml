@@ -1,0 +1,28 @@
+[images]
+  remote_images = ["https://source.unsplash.com/.*", "https://images.unsplash.com/.*", "https://ext.same-assets.com/.*", "https://ugc.same-assets.com/.*"]
+
+[build]
+  command = "bun run build"
+  publish = ".next"
+
+[build.environment]
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
+  NODE_VERSION = "18"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Configurações para domínio personalizado
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Configurações específicas para www.lojadacheck.com.br
+[context.production]
+  environment = { NEXT_PUBLIC_SITE_URL = "https://www.lojadacheck.com.br", INTER_WEBHOOK_SECRET = "webhook-secret-inter-loja-check-2024" }
